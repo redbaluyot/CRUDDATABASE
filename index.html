@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Firebase CRUD</title>
+    <!-- Firebase CDN -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        updateDoc,
+        deleteDoc,
+        doc,
+      } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfNvbLz8SY5wu4JJyo-hYUJ2bIkR2whHA",
+        authDomain: "taskmanagerapp-b0491.firebaseapp.com",
+        projectId: "taskmanagerapp-b0491",
+        storageBucket: "taskmanagerapp-b0491.firebasestorage.app",
+        messagingSenderId: "1060832504372",
+        appId: "1:1060832504372:web:4ae3343cdf99f608cf7861",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const tasksRef = collection(db, "tasks");
+
+      async function createTask(title, status) {
+        const docRef = await addDoc(tasksRef, { title, status });
+        console.log("Task Created with ID:", docRef.id);
+      }
+
+      async function getAllTasks() {
+        const snapshot = await getDocs(tasksRef);
+        snapshot.forEach((doc) => {
+          console.log(`${doc.id} =>`, doc.data());
+        });
+      }
+
+      async function updateTask(id, newStatus) {
+        const taskDoc = doc(db, "tasks", id);
+        const snapshot = await getDocs(tasksRef);
+        const ids = snapshot.docs.map((doc) => doc.id);
+
+        if (ids.includes(id)) {
+          await updateDoc(taskDoc, { status: newStatus });
+          console.log("Task Updated");
+        } else {
+          console.error("No such task to update:", id);
+        }
+      }
+
+      async function deleteTask(id) {
+        const taskDoc = doc(db, "tasks", id);
+        await deleteDoc(taskDoc);
+        console.log("Task Deleted");
+      }
+
+      // Expose functions globally
+      window.createTask = createTask;
+      window.getAllTasks = getAllTasks;
+      window.updateTask = updateTask;
+      window.deleteTask = deleteTask;
+    </script>
+  </head>
+  <body>
+    <h1>Firebase CRUD in Console</h1>
+    <p>Open DevTools (F12) > Console to test the functions</p>
+  </body>
+</html>
